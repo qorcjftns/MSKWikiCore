@@ -21,26 +21,41 @@ export default class Renderer {
         // loop through characters
         var wikiLength = this.wikiText.length;
         var textQueue = '';
-        var tagsQueue = [];
+        var tagsStack = [];
         for (var index = 0; index < wikiLength; index++) {
             var character = this.wikiText[index];
             // add character to queue
             textQueue += character;
             
-            var checkTag;
-            
+            var startTag = this.checkStartTag(textQueue);
+            if(!startTag) {
+                tagsStack.push(startTag);
+            }
 
         }
     }
-    checkGrammarStart(queue) {
-        for(var i = 0 ; i < this.grammar.data.length ; i++) {
-            if(queue == this.grammar.data[i].beginTag) return this.grammar.data[i];
+    checkStartTag(queue) {
+        var tags = this.grammar.data;
+        for(var i = 0 ; i < tags.length ; i++) {
+            var startTag = tags[i].startTag;
+            var startTagLength = startTag.length;
+            var found = true;
+            for(var j = startTagLength - 1 ; j >= 0 && found ; j--) {
+                if(queue[queue.length - 1] != startTag[j]) found = false;
+            }
+            if(found) return tags[i];
         }
         return false;
     }
-    checkGrammarEnd(queue) {
-        for(var i = 0 ; i < this.grammar.data.length ; i++) {
-            if(queue == this.grammar.data[i].endTag) return this.grammar.data[i];
+    checkEndTag(queue, tags) {
+        for(var i = 0 ; i < tags.length ; i++) {
+            var startTag = tags[i].startTag;
+            var startTagLength = startTag.length;
+            var found = true;
+            for(var j = startTagLength - 1 ; j >= 0 && found ; j--) {
+                if(queue[queue.length - 1] != startTag[j]) found = false;
+            }
+            if(found) return tags[i];
         }
         return false;
     }
