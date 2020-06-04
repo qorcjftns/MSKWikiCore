@@ -34,25 +34,29 @@ export default class Renderer {
         var wikiText = this.wikiText;
         while(wikiText.length > 0) {
             var character = wikiText[0];
-            // add character to queue
-            processed += character;
+            var found = false;
 
-            wikiText = this.popString(wikiText, 1); // skip 1 character (already added to queue);
-            
             var endTag = this.checkEndTag(wikiText, tagsStack);
             if(endTag) {
                 tagsStack.pop(endTag);
                 wikiText = this.popString(wikiText, endTag.endTag.length); // skip start tag
                 processed += "</" + endTag.tag + ">";
                 if(endTag.endTag.indexOf('\n') !== -1) processed += '\n';
+                found = true;
             }
             var startTag = this.checkStartTag(wikiText);
             if(startTag) {
                 tagsStack.push(startTag);
                 wikiText = this.popString(wikiText, startTag.startTag.length); // skip start tag
                 processed += "<" + startTag.tag + ">";
+                found = true;
             }
 
+            // add character to queue
+            if(!found) {
+                processed += character;
+                wikiText = this.popString(wikiText, 1); // skip 1 character (already added to queue);
+            }
         }
         htmlText += processed;
         return htmlText;
@@ -67,13 +71,14 @@ export default class Renderer {
                 if(queue[j] != startTag[j]) found = false;
             }
             if(found) {
+                
                 return tags[i];
             }
         }
         return false;
     }
     checkEndTag(queue, tags) {
-        for(var i = 0 ; i < tags.length ; i++) {
+        for(var i = tags.length - 1 ; i >= 0 ; i--) {
             var endTag = tags[i].endTag;
             var endTagLength = endTag.length;
             var found = true;
