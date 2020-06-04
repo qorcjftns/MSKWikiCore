@@ -1,14 +1,15 @@
 // Namuwiki grammar 0.0.1
-import { DefaultGrammarObject } from '../../object';
+import { DefaultGrammarRule } from '../../object/index.js';
 var grammar = {
     'version': '0.0.1',
     'data': [
-        new DefaultGrammarObject('\'\'\'', '\'\'\'', 'b'),
-        new DefaultGrammarObject('\'\'', '\'\'', 'i'),
-        new DefaultGrammarObject('~~', '~~', 'del'),
-        new DefaultGrammarObject('--', '--', 'del'),
-        new DefaultGrammarObject('__', '__', 'u'),
-        new DefaultGrammarObject('^^', '^^', 'sup'),
-        new DefaultGrammarObject(',,', ',,', 'sub'),
+        new DefaultGrammarRule('\'\'\'', '\'\'\'', 'b'),
+        new DefaultGrammarRule('\'\'', '\'\'', 'i'),
+        new DefaultGrammarRule('~~', '~~', 'del'),
+        new DefaultGrammarRule('--', '--', 'del'),
+        new DefaultGrammarRule('__', '__', 'u'),
+        new DefaultGrammarRule('^^', '^^', 'sup'),
+        new DefaultGrammarRule(',,', ',,', 'sub'),
     ]
 }
+export default grammar;

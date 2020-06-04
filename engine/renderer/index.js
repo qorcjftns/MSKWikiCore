@@ -1,5 +1,5 @@
 
-class Renderer {
+export default class Renderer {
 
     /**************************************
      *  Constructor
@@ -22,7 +22,7 @@ class Renderer {
         var wikiLength = this.wikiText.length;
         var textQueue = '';
         var tagsQueue = [];
-        for (var index = 0; index < wikiLength; i++) {
+        for (var index = 0; index < wikiLength; index++) {
             var character = this.wikiText[index];
             // add character to queue
             textQueue += character;

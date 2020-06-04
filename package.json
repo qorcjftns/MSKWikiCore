@@ -5,8 +5,10 @@
   "main": "index.js",
   "repository": "https://github.com/qorcjftns/MSKWikiCore",
   "scripts": {
+    "start": "node --experimental-modules index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "type": "module"
 }
