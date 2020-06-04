@@ -4,8 +4,8 @@ import grammar from './engine/grammar/namu/0.0.1/index.js';
 
 var testText = `
     ## Title 1
-    ''WikiCore'' is perfectly working!
-    Even '''Italic''' and ''bold'' are working fine.
+    '''WikiCore''' is perfectly working!
+    Even ''Italic'' and '''bold''' are working fine.
 `;
 
 var rule = new DefaultGrammarRule('\'\'\'', '\'\'\'', 'b');
@@ -13,4 +13,4 @@ var rule = new DefaultGrammarRule('\'\'\'', '\'\'\'', 'b');
 console.log(rule.render('blahblah'));
 
 var render = new renderer('namu', '0.0.1', testText);
-render.render();
+console.log(render.render());
