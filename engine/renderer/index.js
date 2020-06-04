@@ -22,7 +22,7 @@ export default class Renderer {
      **************************************/
 
     popString(string, count) {
-        return string.substring(count, string.length - 1);
+        return string.substring(count, string.length);
     }
 
     render() {
@@ -39,11 +39,18 @@ export default class Renderer {
 
             wikiText = this.popString(wikiText, 1); // skip 1 character (already added to queue);
             
+            var endTag = this.checkEndTag(wikiText, tagsStack);
+            if(endTag) {
+                tagsStack.pop(endTag);
+                wikiText = this.popString(wikiText, endTag.endTag.length); // skip start tag
+                processed += "</" + endTag.tag + ">";
+                if(endTag.endTag.indexOf('\n') !== -1) processed += '\n';
+            }
             var startTag = this.checkStartTag(wikiText);
             if(startTag) {
                 tagsStack.push(startTag);
                 wikiText = this.popString(wikiText, startTag.startTag.length); // skip start tag
-                processed += "(" + startTag.tag + ")";
+                processed += "<" + startTag.tag + ">";
             }
 
         }
@@ -67,13 +74,15 @@ export default class Renderer {
     }
     checkEndTag(queue, tags) {
         for(var i = 0 ; i < tags.length ; i++) {
-            var startTag = tags[i].startTag;
-            var startTagLength = startTag.length;
+            var endTag = tags[i].endTag;
+            var endTagLength = endTag.length;
             var found = true;
-            for(var j = startTagLength - 1 ; j >= 0 && found ; j--) {
-                if(queue[queue.length - 1] != startTag[j]) found = false;
+            for(var j = 0 ; j < endTagLength && found ; j++) {
+                if(queue[j] != endTag[j]) found = false;
             }
-            if(found) return tags[i];
+            if(found) {
+                return tags[i];
+            }
         }
         return false;
     }
