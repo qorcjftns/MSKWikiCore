@@ -9,7 +9,7 @@ var testText2 = `
 ## ''' ''test'' '''
 `;
 
-var testText = testText2;
+var testText = testText1;
 
 var render = new renderer('namu', '0.0.1', testText);
 console.log("Original Text: ");

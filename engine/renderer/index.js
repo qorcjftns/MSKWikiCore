@@ -40,7 +40,7 @@ export default class Renderer {
             for(var i = 0 ; i < possibleTag.length ; i++) {
                 var wikiTag = possibleTag[i][1];
                 if(this.checkTag(wiki, wikiTag.endTag)) {
-                    this.structure.push([possibleTag[i][0], position - wikiTag.endTag.length + 1, wikiTag, []]);
+                    this.structure.push([possibleTag[i][0], position + 1, wikiTag, []]);
 
                     possibleTag.pop(wikiTag);
 
@@ -53,7 +53,7 @@ export default class Renderer {
             for(var i = 0 ; i < tags.length ; i++) {
                 var wikiTag = tags[i];
                 if(this.checkTag(wiki, wikiTag.startTag)) {
-                    possibleTag.push([position + wikiTag.startTag.length, wikiTag]);
+                    possibleTag.push([position, wikiTag]);
 
                     wiki = wiki.substring(wikiTag.startTag.length - 1);
                     position += wikiTag.startTag.length - 1;
@@ -100,9 +100,20 @@ export default class Renderer {
         var last_pos = 0;
         for(var i = 0 ; i < taglist.length ; i++) {
             var tag = taglist[i];
+            var start = tag[0] + tag[2].startTag.length - offset;
+            var end = tag[1] - tag[2].endTag.length + 1 - offset;
             
-            console.log(tag);
+            // render
+            var content = text.substring(start, end);
+            content = tag[2].render(this.renderText(content, tag[3], offset + start)).html;
+
+            converted += text.substring(last_pos, start - tag[2].startTag.length);
+            converted += content;
+
+            last_pos = end + tag[2].endTag.length + 1;
+
         }
+        converted += text.substring(last_pos, text.length);
         return converted;
     }
 
