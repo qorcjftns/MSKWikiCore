@@ -40,7 +40,7 @@ export default class Renderer {
             for(var i = 0 ; i < possibleTag.length ; i++) {
                 var wikiTag = possibleTag[i][1];
                 if(this.checkTag(wiki, wikiTag.endTag)) {
-                    this.structure.push([possibleTag[i][0], position - wikiTag.endTag.length, wikiTag, []]);
+                    this.structure.push([possibleTag[i][0], position - wikiTag.endTag.length + 1, wikiTag, []]);
 
                     possibleTag.pop(wikiTag);
 
@@ -53,7 +53,7 @@ export default class Renderer {
             for(var i = 0 ; i < tags.length ; i++) {
                 var wikiTag = tags[i];
                 if(this.checkTag(wiki, wikiTag.startTag)) {
-                    possibleTag.push([position, wikiTag]);
+                    possibleTag.push([position + wikiTag.startTag.length, wikiTag]);
 
                     wiki = wiki.substring(wikiTag.startTag.length - 1);
                     position += wikiTag.startTag.length - 1;
@@ -87,15 +87,23 @@ export default class Renderer {
     }
 
     render() {
-        console.log(this.wikiText.length);
         this.analyze();
         this.structureToTree();
-        console.log(this.structure);
+        // console.log(this.structure);
+
+        return this.renderText(this.wikiText, this.structure, 0);
         
     }
 
-    renderText(text, tag, offset) {
-        
+    renderText(text, taglist, offset) {
+        var converted = "";
+        var last_pos = 0;
+        for(var i = 0 ; i < taglist.length ; i++) {
+            var tag = taglist[i];
+            
+            console.log(tag);
+        }
+        return converted;
     }
 
 }
