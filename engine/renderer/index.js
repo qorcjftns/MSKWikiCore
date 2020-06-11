@@ -10,7 +10,7 @@ export default class Renderer {
         this.wikiType = wikiType;
         this.version = version;
         this.wikiText = wikiText;
-        this.structure = {};
+        this.structure = [];
         this.loadGrammar();
     }
 
@@ -18,103 +18,85 @@ export default class Renderer {
         this.grammar = grammar;
     }
 
-    /**************************************
-     *  Method Declarations
-     **************************************/
-
-    popString(string, count) {
-        return string.substring(count, string.length);
+    checkTag(text, tag) {
+        for(var i = 0 ; i < tag.length ; i++) {
+            if(i >= text.length || text[i] !== tag[i]) return false;
+        }
+        return true;
     }
 
-    addPossibleStartTag(position, tag) {
-        if(this.structure[position] == undefined) this.structure[position] = [];
-        this.structure[position][0] = tag;
-    }
-    addPossibleEndTag(position, tag) {
-        if(this.structure[position] == undefined) this.structure[position] = [];
-        this.structure[position][1] = tag;
-    }
-    checkCompleteTag(tag) {
-        for(var list in this.structure) {
-            if(this.structure.hasOwnProperty(list)) {
-                if(this.structure[list][0] === tag) {
-                    return list;
+    analyze() {
+        var wiki = this.wikiText;
+        var processed = '';
+        var tags = this.grammar.data;
+        var possibleTag = [];
+        var position = 0;
+        while(wiki.length > 0) {
+            processed += wiki[0];
+            wiki = wiki.substring(1);
+            position += 1;
+
+            // loop through possible end tag
+            for(var i = 0 ; i < possibleTag.length ; i++) {
+                var wikiTag = possibleTag[i][1];
+                if(this.checkTag(wiki, wikiTag.endTag)) {
+                    this.structure.push([possibleTag[i][0], position - wikiTag.endTag.length, wikiTag, []]);
+
+                    possibleTag.pop(wikiTag);
+
+                    wiki = wiki.substring(wikiTag.endTag.length - 1);
+                    position += wikiTag.endTag.length - 1;
+                }
+            }
+
+            // loop through possible start tag
+            for(var i = 0 ; i < tags.length ; i++) {
+                var wikiTag = tags[i];
+                if(this.checkTag(wiki, wikiTag.startTag)) {
+                    possibleTag.push([position, wikiTag]);
+
+                    wiki = wiki.substring(wikiTag.startTag.length - 1);
+                    position += wikiTag.startTag.length - 1;
                 }
             }
         }
-        return false;
+
+        // sort structure by its start tag position
+        this.structure = this.structure.sort(function(a, b) { return a[0] - b[0]; });
+    }
+
+    addToTree(tree, item) {
+        for(var i = 0 ; i < tree.length ; i++) {
+            if(tree[i][0] < item[0] && item[1] < tree[i][1]) { // parent found
+                var added = this.addToTree(tree[i][3], item);
+                tree[i][3] = added;
+                return tree;
+            }
+        }
+        // not found OR tree length is 0
+        tree[tree.length] = item;
+        return tree;
+    }
+
+    structureToTree() {
+        var tree = [];
+        for(var i = 0 ; i < this.structure.length ; i++) {
+            tree = this.addToTree(tree, this.structure[i]);
+        }
+        this.structure = tree;
     }
 
     render() {
-        // loop through characters
-        // var wikiLength = this.wikiText.length;
-        var processed = '';
-        var htmlText = '';
-        var tagsStack = [];
-        var wikiText = this.wikiText;
-        var position = 0;
-        while(wikiText.length > 0) {
-            var character = wikiText[0];
-            var found = false;
-
-            var endTag = this.checkEndTag(wikiText, tagsStack);
-            if(endTag) {
-                tagsStack.pop(endTag);
-                wikiText = this.popString(wikiText, endTag.endTag.length); // skip start tag
-                processed += "</" + endTag.tag + ">";
-                if(endTag.endTag.indexOf('\n') !== -1) processed += '\n';
-                found = true;
-                this.addPossibleEndTag(position, startTag);
-            }
-            var startTag = this.checkStartTag(wikiText);
-            if(startTag) {
-                tagsStack.push(startTag);
-                wikiText = this.popString(wikiText, startTag.startTag.length); // skip start tag
-                processed += "<" + startTag.tag + ">";
-                found = true;
-                this.addPossibleStartTag(position, startTag);
-            }
-
-            // add character to queue
-            if(!found) {
-                processed += character;
-                wikiText = this.popString(wikiText, 1); // skip 1 character (already added to queue);
-            }
-            position += 1;
-        }
-        htmlText += processed;
+        console.log(this.wikiText.length);
+        this.analyze();
+        this.structureToTree();
         console.log(this.structure);
-        return htmlText;
+        
     }
-    checkStartTag(queue) {
-        var tags = this.grammar.data;
-        for(var i = 0 ; i < tags.length ; i++) {
-            var startTag = tags[i].startTag;
-            var startTagLength = startTag.length;
-            var found = true;
-            for(var j = 0 ; j < startTagLength && found ; j++) {
-                if(queue[j] != startTag[j]) found = false;
-            }
-            if(found) {
-                
-                return tags[i];
-            }
-        }
-        return false;
+
+    renderText(text, tag, offset) {
+        
     }
-    checkEndTag(queue, tags) {
-        for(var i = tags.length - 1 ; i >= 0 ; i--) {
-            var endTag = tags[i].endTag;
-            var endTagLength = endTag.length;
-            var found = true;
-            for(var j = 0 ; j < endTagLength && found ; j++) {
-                if(queue[j] != endTag[j]) found = false;
-            }
-            if(found) {
-                return tags[i];
-            }
-        }
-        return false;
-    }
+
 }
 
