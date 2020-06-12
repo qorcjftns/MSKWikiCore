@@ -10,7 +10,8 @@ var grammar = {
         new DefaultGrammarRule('__', '__', 'u'),
         new DefaultGrammarRule('^^', '^^', 'sup'),
         new DefaultGrammarRule(',,', ',,', 'sub'),
-        new DefaultGrammarRule('## ', '\n', 'h1'),
+        new DefaultGrammarRule('## ', '\n', 'h1', {newline: true}),
+        
     ]
 }
 export default grammar;
